@@ -7,17 +7,13 @@ package iteration1.classesConnexion;
 
 /**
  *
- * @author Paul
+ * @author Arxade
  */
-public class ClassConnexionOracle extends ClassConnexion {
-    
-    public ClassConnexionOracle(){}
+public abstract class ClassConnexion {
     
     
-    public void connexion(){
+    public abstract void connexion();
     
     
     
-    }
-      
 }

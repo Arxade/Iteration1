@@ -9,9 +9,11 @@ package iteration1.classesConnexion;
  *
  * @author Paul
  */
-public class ClassConnexionOracle extends ClassConnexion {
+public class ClassConnexionMySQL extends ClassConnexion{
     
-    public ClassConnexionOracle(){}
+    
+    
+    public ClassConnexionMySQL(){}
     
     
     public void connexion(){
@@ -19,5 +21,5 @@ public class ClassConnexionOracle extends ClassConnexion {
     
     
     }
-      
+    
 }
