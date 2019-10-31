@@ -4,22 +4,23 @@
  * and open the template in the editor.
  */
 package iteration1.classesConnexion;
+import iteration1.forms.FormConnect;
 
 /**
  *
  * @author Paul
  */
-public class ClassConnexionMySQL extends ClassConnexion{
+public class ClassConnexionMySQL extends ClassConnexion{ 
     
-    
-    
+   
     public ClassConnexionMySQL(){}
     
-    
-    public void connexion(){
-    
-    
-    
+   
+    public void connexion(String user, String psswd) {
+        
+        
+        
+        
     }
     
 }

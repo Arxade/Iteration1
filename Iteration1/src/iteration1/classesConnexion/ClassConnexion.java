@@ -12,7 +12,7 @@ package iteration1.classesConnexion;
 public abstract class ClassConnexion {
     
     
-    public abstract void connexion();
+    public abstract void connexion(String user, String psswd);
     
     
     

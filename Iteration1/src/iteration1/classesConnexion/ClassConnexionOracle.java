@@ -14,7 +14,7 @@ public class ClassConnexionOracle extends ClassConnexion {
     public ClassConnexionOracle(){}
     
     
-    public void connexion(){
+    public void connexion(String user, String psswd){
     
     
     
