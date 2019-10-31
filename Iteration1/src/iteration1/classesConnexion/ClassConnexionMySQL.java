@@ -30,7 +30,7 @@ public class ClassConnexionMySQL extends ClassConnexion{
     public ClassConnexionMySQL(){}
     
    
-    public void connexion(String user, String psswd) {
+    public void connexion(String nomBDD, String user, String psswd) {
         
         try {
             // chargement driver sql
@@ -38,7 +38,7 @@ public class ClassConnexionMySQL extends ClassConnexion{
             
             // setup connexion avec la BD (A CHANGER ICI BD LOCALE WAMPSERVEUR POUR TEST)
             connecter = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/test"
+                    .getConnection("jdbc:mysql://localhost:3306/" + nomBDD 
                             + "user=" + user + "&password=" + psswd);
 
         } catch (Exception e) {
