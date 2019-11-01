@@ -5,6 +5,8 @@
  */
 package iteration1.forms;
 
+import iteration1.classesConnexion.*;
+
 /**
  *
  * @author Arxade
@@ -141,6 +143,8 @@ public class FormConnect extends javax.swing.JFrame {
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
         FormConnected form = new FormConnected();
         form.setVisible(true);
+        ConnexionMySQL co = new ConnexionMySQL();
+        co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxBDD.getText());
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     /**

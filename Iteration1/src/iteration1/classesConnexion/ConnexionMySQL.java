@@ -30,7 +30,7 @@ public class ConnexionMySQL extends Connexion{
     public ConnexionMySQL(){}
     
    
-    public void connexion(String nomBDD, String user, String psswd) {
+    public void connexion(String user, String psswd, String nomBDD) {
         
         try {
             // chargement driver sql
@@ -38,8 +38,8 @@ public class ConnexionMySQL extends Connexion{
             
             // setup connexion avec la BD (A CHANGER ICI BD LOCALE WAMPSERVEUR POUR TEST)
             connecter = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/" + nomBDD 
-                            + "user=" + user + "&password=" + psswd);
+                    .getConnection("jdbc:mysql://localhost/"+nomBDD+"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+                            + "&user="+user+"&password="+psswd );
 
         } catch (Exception e) {
            System.out.println(e);
