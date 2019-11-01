@@ -139,7 +139,8 @@ public class FormConnect extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
-        // TODO add your handling code here:
+        FormConnected form = new FormConnected();
+        form.setVisible(true);
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     /**
