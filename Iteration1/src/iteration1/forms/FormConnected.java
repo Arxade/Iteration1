@@ -5,12 +5,15 @@
  */
 
 package iteration1.forms;
+import iteration1.classesConnexion.*;
+import java.sql.ResultSet;
 
 /**
  *
  * @author Arxade
  */
 public class FormConnected extends javax.swing.JFrame {
+
 
     /** Creates new form FromConnected */
     public FormConnected() {
@@ -96,6 +99,8 @@ public class FormConnected extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new FormConnected().setVisible(true);
+                
+                
             }
         });
     }
