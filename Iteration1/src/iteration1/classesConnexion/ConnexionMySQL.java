@@ -28,6 +28,7 @@ public class ConnexionMySQL extends Connexion{
     public ConnexionMySQL(){}
     
    
+    @Override
     public void connexion(String user, String psswd, String nomBDD) {
         
         try {
@@ -45,6 +46,7 @@ public class ConnexionMySQL extends Connexion{
         }
     }
     
+    @Override
     public ResultSet getResultSetFromTable(String table) throws Exception{
          Class.forName("com.mysql.cj.jdbc.Driver");
                 statement = connect.createStatement();
@@ -57,6 +59,7 @@ public class ConnexionMySQL extends Connexion{
     
     }
     
+    @Override
       public void writeMetaData(ResultSet resultSet) throws SQLException {
         //  Now get some metadata from the database
         // Result set get the result of the SQL query
@@ -69,6 +72,7 @@ public class ConnexionMySQL extends Connexion{
         }
     }
       
+    @Override
        public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
         
         String text = "The columns in the table are : \r\n";
@@ -80,6 +84,7 @@ public class ConnexionMySQL extends Connexion{
         return text;
     }
 
+    @Override
     public void writeResultSet(ResultSet resultSet) throws SQLException {
         // ResultSet is initially before the first data set
         while (resultSet.next()) {
@@ -101,7 +106,8 @@ public class ConnexionMySQL extends Connexion{
     }
     
     
-    private void close() {
+    @Override
+    protected void close() {
         try {
             if (resultSet != null) {
                 resultSet.close();

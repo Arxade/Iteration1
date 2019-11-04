@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * @author Arxade
  */
 public class FormConnect extends javax.swing.JFrame {
-public ConnexionMySQL co;
+public Connexion co;
 public ResultSet donnees;
     
     /**
@@ -74,6 +74,11 @@ public ResultSet donnees;
         jLabel4.setText("Mot de passe :");
 
         comboboxSGBD.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Oracle", "MySQL" }));
+        comboboxSGBD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboboxSGBDActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("Nom de la BDD :");
 
@@ -184,8 +189,17 @@ public ResultSet donnees;
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
         //FormConnected form = new FormConnected();
         //form.setVisible(true);
-        co = new ConnexionMySQL();
-        co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxBDD.getText());
+        if(comboboxSGBD.getSelectedItem()=="MySQL")
+        {
+            co = new ConnexionMySQL();
+            co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxBDD.getText());
+        }
+        else
+        {
+            co = new ConnexionOracle();
+            co.connexion(textboxBDD.getText(),textboxLogin.getText() , textboxPassword.getText());
+            
+        }
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     private void buttonColonnesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonColonnesActionPerformed
@@ -200,6 +214,10 @@ public ResultSet donnees;
         javax.swing.JOptionPane.showMessageDialog(null,ex);
     }
     }//GEN-LAST:event_buttonColonnesActionPerformed
+
+    private void comboboxSGBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxSGBDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboboxSGBDActionPerformed
 
     /**
      * @param args the command line arguments
