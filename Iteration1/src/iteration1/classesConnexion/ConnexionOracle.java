@@ -37,7 +37,7 @@ public class ConnexionOracle extends Connexion {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", user , psswd);
             if (conn != null)
             {
-                System.out.println("Connected to the database!");
+                javax.swing.JOptionPane.showMessageDialog(null, "Connected to the database!");
                 
                 // Accéder à la liste des tables
                 Statement stmt= conn.createStatement();
@@ -51,11 +51,12 @@ public class ConnexionOracle extends Connexion {
             }
             else
             {
-                System.out.println("Failed to make connection!");
+                javax.swing.JOptionPane.showMessageDialog(null, "Failed to make connection!");
             }
         }
         catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(null, e);
         } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(null,e);
             e.printStackTrace();
