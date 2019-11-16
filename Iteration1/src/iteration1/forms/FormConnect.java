@@ -24,6 +24,8 @@ public ResultSet donnees;
      */
     public FormConnect() {
         initComponents();
+        textboxBDD.setVisible(false);
+        labelBDD.setVisible(false);
     }
 
     /**
@@ -44,7 +46,7 @@ public ResultSet donnees;
         comboboxSGBD = new javax.swing.JComboBox<>();
         textboxLogin = new javax.swing.JTextField();
         textboxPassword = new javax.swing.JPasswordField();
-        jLabel5 = new javax.swing.JLabel();
+        labelBDD = new javax.swing.JLabel();
         textboxBDD = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         textboxURL = new javax.swing.JTextField();
@@ -82,9 +84,7 @@ public ResultSet donnees;
             }
         });
 
-        jLabel5.setText("Nom de la BDD MySQL :");
-
-        textboxBDD.setEnabled(false);
+        labelBDD.setText("Nom de la BDD :");
 
         jLabel7.setText("URL :");
 
@@ -98,7 +98,7 @@ public ResultSet donnees;
                     .addComponent(jLabel3)
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel5)
+                    .addComponent(labelBDD)
                     .addComponent(jLabel7))
                 .addGap(24, 24, 24)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -142,7 +142,7 @@ public ResultSet donnees;
                     .addComponent(textboxPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
+                    .addComponent(labelBDD)
                     .addComponent(textboxBDD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(44, 44, 44)
                 .addComponent(buttonConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -169,7 +169,7 @@ public ResultSet donnees;
             .addGroup(layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel6)
@@ -200,8 +200,6 @@ public ResultSet donnees;
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
-        //FormConnected form = new FormConnected();
-        //form.setVisible(true);
         if(comboboxSGBD.getSelectedItem()=="MySQL")
         {
             co = new ConnexionMySQL();
@@ -231,11 +229,13 @@ public ResultSet donnees;
     private void comboboxSGBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxSGBDActionPerformed
         if(comboboxSGBD.getSelectedItem()=="MySQL")
         {
-            textboxBDD.setEnabled(true);
+            textboxBDD.setVisible(true);
+            labelBDD.setVisible(true);
         }
         else
         {
-            textboxBDD.setEnabled(false);
+            textboxBDD.setVisible(false);
+            labelBDD.setVisible(false);
         }
     }//GEN-LAST:event_comboboxSGBDActionPerformed
 
@@ -282,11 +282,11 @@ public ResultSet donnees;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel labelBDD;
     private javax.swing.JTextArea textareaMetaData;
     private javax.swing.JTextField textboxBDD;
     private javax.swing.JTextField textboxLogin;
