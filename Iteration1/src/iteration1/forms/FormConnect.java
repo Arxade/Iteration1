@@ -200,15 +200,16 @@ public ResultSet donnees;
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
+      //Connexion à la BDD en fonction du SGBD choisi
         if(comboboxSGBD.getSelectedItem()=="MySQL")
         {
             co = new ConnexionMySQL();
-            co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxBDD.getText(), textboxURL.getText());
+            co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
         }
         else
         {
             co = new ConnexionOracle();
-            co.connexion(textboxBDD.getText(),textboxLogin.getText() , textboxPassword.getText(), textboxURL.getText());
+            co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
             
         }
     }//GEN-LAST:event_buttonConnectActionPerformed
@@ -227,6 +228,7 @@ public ResultSet donnees;
     }//GEN-LAST:event_buttonColonnesActionPerformed
 
     private void comboboxSGBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxSGBDActionPerformed
+        //Affiche la texbox nomBDD uniquement lors d'une connexion à MySQL
         if(comboboxSGBD.getSelectedItem()=="MySQL")
         {
             textboxBDD.setVisible(true);

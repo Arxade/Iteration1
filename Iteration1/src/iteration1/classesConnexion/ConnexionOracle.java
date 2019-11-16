@@ -29,7 +29,7 @@ public class ConnexionOracle extends Connexion {
     public ConnexionOracle(){}
     
     @Override
-    public void connexion(String nomBDD, String user, String psswd, String URL){
+    public void connexion(String user, String psswd, String URL, String nomBDD){
     
         try  
         {
