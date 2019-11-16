@@ -35,9 +35,9 @@ public class ConnexionMySQL extends Connexion{
             // chargement driver sql
             Class.forName("com.mysql.cj.jdbc.Driver");
             
-            // setup connexion avec la BD (A CHANGER ICI BD LOCALE WAMPSERVEUR POUR TEST)
+            // setup connexion avec la BD
             connect = DriverManager
-                    .getConnection("jdbc:mysql://localhost/"+nomBDD+"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+                    .getConnection("jdbc:mysql://"+URL+"/"+nomBDD+"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
                             + "&user="+user+"&password="+psswd );
             javax.swing.JOptionPane.showMessageDialog(null,"Connexion réussie");
 
