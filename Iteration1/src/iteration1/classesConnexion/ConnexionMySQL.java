@@ -29,7 +29,7 @@ public class ConnexionMySQL extends Connexion{
     
    
     @Override
-    public void connexion(String user, String psswd, String nomBDD) {
+    public void connexion(String user, String psswd, String nomBDD, String URL) {
         
         try {
             // chargement driver sql

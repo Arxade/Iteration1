@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public abstract class Connexion {
     
     
-    public abstract void connexion(String nomBDD, String user, String psswd);
+    public abstract void connexion(String nomBDD, String user, String psswd, String URL);
     public abstract ResultSet getResultSetFromTable(String table) throws Exception;
     public abstract void writeMetaData(ResultSet resultSet) throws SQLException;
     public abstract String writeMetaDataToString(ResultSet resultSet) throws SQLException;

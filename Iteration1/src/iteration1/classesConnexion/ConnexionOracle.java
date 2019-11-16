@@ -29,12 +29,12 @@ public class ConnexionOracle extends Connexion {
     public ConnexionOracle(){}
     
     @Override
-    public void connexion(String nomBDD, String user, String psswd){
+    public void connexion(String nomBDD, String user, String psswd, String URL){
     
         try  
         {
             //On modifira l'ui pour s'adapter à Oracle, MySQL n'ayant pas exactement la même organisation//
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", user , psswd);
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@" + URL, user , psswd);
             if (conn != null)
             {
                 javax.swing.JOptionPane.showMessageDialog(null, "Connected to the database!");
