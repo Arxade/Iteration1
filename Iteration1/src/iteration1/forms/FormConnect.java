@@ -82,7 +82,9 @@ public ResultSet donnees;
             }
         });
 
-        jLabel5.setText("Nom de la BDD :");
+        jLabel5.setText("Nom de la BDD MySQL :");
+
+        textboxBDD.setEnabled(false);
 
         jLabel7.setText("URL :");
 
@@ -167,7 +169,7 @@ public ResultSet donnees;
             .addGroup(layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel6)
@@ -227,7 +229,14 @@ public ResultSet donnees;
     }//GEN-LAST:event_buttonColonnesActionPerformed
 
     private void comboboxSGBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxSGBDActionPerformed
-        // TODO add your handling code here:
+        if(comboboxSGBD.getSelectedItem()=="MySQL")
+        {
+            textboxBDD.setEnabled(true);
+        }
+        else
+        {
+            textboxBDD.setEnabled(false);
+        }
     }//GEN-LAST:event_comboboxSGBDActionPerformed
 
     /**
