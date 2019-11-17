@@ -25,6 +25,7 @@ public class ConnectionDataJSON {
             //recup des infos de la hashtable pour les mettre dans data
             JSONObject data = new JSONObject();
             
+            data.put("SGBD", h.get("SGBD"));
             data.put("URL", h.get("URL"));
             data.put("login", h.get("login"));
             data.put("mdp", h.get("mdp"));
@@ -62,6 +63,7 @@ public class ConnectionDataJSON {
         
         
         //on associe au hashtable les valeur du json
+        h.put("SGBD",(String) data.get("SGBD"));
         h.put("URL",(String) data.get("URL"));
         h.put("login",(String) data.get("login"));
         h.put("mdp",(String) data.get("mdp"));

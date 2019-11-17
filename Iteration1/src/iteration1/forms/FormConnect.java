@@ -16,16 +16,16 @@ import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *
  * @author Arxade
  */
 public class FormConnect extends javax.swing.JFrame {
-public Connexion co;
-public ResultSet donnees;
-public DatabaseMetaData metadata;
-    
+
+    public Connexion co;
+    public ResultSet donnees;
+    public DatabaseMetaData metadata;
+
     /**
      * Creates new form FormConnect
      */
@@ -33,33 +33,28 @@ public DatabaseMetaData metadata;
         initComponents();
         textboxBDD.setVisible(false);
         labelBDD.setVisible(false);
-         
-       
+
         ConnectionDataJSON js = new ConnectionDataJSON();
-        
+
         //si le json existe on recup les donnees
-        if(js.jsonExist()){
-            
+        if (js.jsonExist()) {
+
             Hashtable<String, String> h;
             h = new Hashtable<>();
-     
+
             h = js.getJson();
-          
+
             //on assigne a chaque champ les data du json
-            if("true".equals(h.get("isChecked"))){         
+            if ("true".equals(h.get("isChecked"))) {
+                comboboxSGBD.setSelectedItem(h.get("SGBD"));
                 textboxURL.setText(h.get("URL"));
                 textboxLogin.setText(h.get("login"));
                 textboxPassword.setText(h.get("mdp"));
                 textboxBDD.setText(h.get("BDD"));
                 ckbxRemember.setSelected(true);
-            }      
+            }
         }
-}
-    
-    
-        
-        
-    
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -242,70 +237,64 @@ public DatabaseMetaData metadata;
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
-        
+
         ConnectionDataJSON js = new ConnectionDataJSON();
         Hashtable<String, String> h = new Hashtable<>();
 
         //si se souvenir des parametres est coché
-        if(ckbxRemember.isSelected()){
-             
+        if (ckbxRemember.isSelected()) {
+            h.put("SGBD", comboboxSGBD.getSelectedItem().toString());
             h.put("URL", textboxURL.getText());
             h.put("login", textboxLogin.getText());
-            h.put("mdp",  textboxPassword.getText());
+            h.put("mdp", textboxPassword.getText());
             h.put("BDD", textboxBDD.getText());
             h.put("isChecked", "true");
-            
+
             js.saveJSON(h);
-        }
-        //sinon
-        else{
+        } //sinon
+        else {
+            h.put("SGBD", "Oracle");
             h.put("URL", "");
             h.put("login", "");
-            h.put("mdp",  "");
+            h.put("mdp", "");
             h.put("BDD", "");
             h.put("isChecked", "false");
-            
-            js.saveJSON(h); 
+
+            js.saveJSON(h);
         }
-        
-        
+
         //Connexion à la BDD en fonction du SGBD choisi
-        if(comboboxSGBD.getSelectedItem()=="MySQL")
-        {
+        if (comboboxSGBD.getSelectedItem() == "MySQL") {
             co = new ConnexionMySQL();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
-        }
-        else
-        {
+        } else {
             co = new ConnexionOracle();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
         }
-   
+
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     private void buttonColonnesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonColonnesActionPerformed
-    try {
-        donnees = co.getResultSetFromTable(textboxTable.getText());
+        //Obtention et affichage des données de la table
+        try {
+            donnees = co.getResultSetFromTable(textboxTable.getText());
 
-    } catch (Exception ex) {
-        javax.swing.JOptionPane.showMessageDialog(null,ex);
-    }
-    try {
-        textareaMetaData.setText(co.writeMetaDataToString(donnees) + co.writePrimaryKeysToString(textboxTable.getText().toUpperCase()));
-    } catch (SQLException ex) {
-        javax.swing.JOptionPane.showMessageDialog(null,ex);
-    }
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(null, ex);
+        }
+        try {
+            textareaMetaData.setText(co.writeMetaDataToString(donnees) + co.writePrimaryKeysToString(textboxTable.getText().toUpperCase()));
+        } catch (SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(null, ex);
+        }
     }//GEN-LAST:event_buttonColonnesActionPerformed
 
     private void comboboxSGBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxSGBDActionPerformed
-        //Affiche la texbox nomBDD uniquement lors d'une connexion à MySQL
-        if(comboboxSGBD.getSelectedItem()=="MySQL")
-        {
+        //Affiche la texbox nomBDD uniquement si MySQL est choisi
+        if (comboboxSGBD.getSelectedItem() == "MySQL") {
             textboxBDD.setVisible(true);
             labelBDD.setVisible(true);
-        }
-        else
-        {
+        } else {
             textboxBDD.setVisible(false);
             labelBDD.setVisible(false);
         }
@@ -343,13 +332,9 @@ public DatabaseMetaData metadata;
             public void run() {
                 new FormConnect().setVisible(true);
             }
-        });   
+        });
     }
-    
 
-    
-  
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonColonnes;
