@@ -6,6 +6,7 @@
 package iteration1.classesConnexion;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,74 +14,85 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-
 /**
  *
  * @author Paul
  */
-public class ConnexionMySQL extends Connexion{ 
-    
+public class ConnexionMySQL extends Connexion {
+
     private Connection connect = null;
     private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
-   
-    public ConnexionMySQL(){}
-    
-   
+    private DatabaseMetaData metadata = null;
+
+    public ConnexionMySQL() {
+    }
+
     @Override
     public void connexion(String user, String psswd, String URL, String nomBDD) {
-        
+
         try {
             // chargement driver sql
             Class.forName("com.mysql.cj.jdbc.Driver");
-            
+
             // setup connexion avec la BD
             connect = DriverManager
-                    .getConnection("jdbc:mysql://"+URL+"/"+nomBDD+"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
-                            + "&user="+user+"&password="+psswd );
-            javax.swing.JOptionPane.showMessageDialog(null,"Connexion réussie");
+                    .getConnection("jdbc:mysql://" + URL + "/" + nomBDD + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+                            + "&user=" + user + "&password=" + psswd);
+            javax.swing.JOptionPane.showMessageDialog(null, "Connexion réussie");
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null,e);
+            javax.swing.JOptionPane.showMessageDialog(null, e);
         }
     }
-    
-    @Override
-    public ResultSet getResultSetFromTable(String table) throws Exception{
-         Class.forName("com.mysql.cj.jdbc.Driver");
-                statement = connect.createStatement();
 
-            preparedStatement = connect
-                    .prepareStatement("SELECT * from "+ table);
-            resultSet = preparedStatement.executeQuery();
-            return resultSet;
-    
-    
-    }
-    
     @Override
-      public void writeMetaData(ResultSet resultSet) throws SQLException {
+    public ResultSet getResultSetFromTable(String table) throws Exception {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        statement = connect.createStatement();
+
+        preparedStatement = connect
+                .prepareStatement("SELECT * from " + table);
+        resultSet = preparedStatement.executeQuery();
+        return resultSet;
+
+    }
+
+    @Override
+    public void writeMetaData(ResultSet resultSet) throws SQLException {
         //  Now get some metadata from the database
         // Result set get the result of the SQL query
 
         System.out.println("The columns in the table are: ");
 
         System.out.println("Table: " + resultSet.getMetaData().getTableName(1));
-        for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
-            System.out.println("Column " +i  + " "+ resultSet.getMetaData().getColumnName(i));
+        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+            System.out.println("Column " + i + " " + resultSet.getMetaData().getColumnName(i));
         }
     }
-      
+
     @Override
-       public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
-        
+    public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
+
         String text = "The columns in the table are : \r\n";
-        
-        for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
-            text = text + ("Column " +i  + " "+ resultSet.getMetaData().getColumnName(i) + "\r\n");
+
+        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+            text = text + ("Column " + i + " " + resultSet.getMetaData().getColumnName(i) + "\r\n");
         }
-        
+
+        return text;
+    }
+
+    @Override
+    public String writePrimaryKeysToString(String nomTable) throws SQLException {
+        metadata = connect.getMetaData();
+        ResultSet clefs = metadata.getPrimaryKeys(connect.getCatalog(), connect.getSchema(), nomTable);
+        String text = "";
+        while (clefs.next()) {
+            String nomColonne = clefs.getString("COLUMN_NAME");
+            text = text + ("La colonne " + nomColonne + " est une clef primaire de " + nomTable + "\r\n");
+        }
         return text;
     }
 
@@ -104,8 +116,7 @@ public class ConnexionMySQL extends Connexion{
             System.out.println("Comment: " + comment);
         }
     }
-    
-    
+
     @Override
     protected void close() {
         try {
@@ -124,5 +135,5 @@ public class ConnexionMySQL extends Connexion{
 
         }
     }
-    
+
 }

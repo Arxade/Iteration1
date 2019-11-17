@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.*;
 import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -21,10 +22,11 @@ import javax.swing.JOptionPane;
  */
 public class ConnexionOracle extends Connexion {
     
-    private Connection conn = null;
-    private Statement stmt = null;
+    private Connection connect = null;
+    private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
+    private DatabaseMetaData metadata = null;
     
     public ConnexionOracle(){}
     
@@ -34,13 +36,15 @@ public class ConnexionOracle extends Connexion {
         try  
         {
             //On modifira l'ui pour s'adapter à Oracle, MySQL n'ayant pas exactement la même organisation//
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@" + URL, user , psswd);
-            if (conn != null)
+            connect = DriverManager.getConnection("jdbc:oracle:thin:@" + URL, user , psswd);
+            if (connect != null)
             {
                 javax.swing.JOptionPane.showMessageDialog(null, "Connected to the database!");
+                              metadata = connect.getMetaData(); 
+
                 
                 // Accéder à la liste des tables
-                Statement stmt= conn.createStatement();
+                Statement stmt= connect.createStatement();
                 ResultSet res = stmt.executeQuery("SELECT table_name FROM user_tables");
                 DefaultListModel model=new DefaultListModel();
                 while(res.next())
@@ -67,13 +71,12 @@ public class ConnexionOracle extends Connexion {
     
     @Override
     public ResultSet getResultSetFromTable(String table) throws Exception{
-                stmt = conn.createStatement();
+                statement = connect.createStatement();
 
-            preparedStatement = conn.prepareStatement("SELECT * from "+ table);
+            preparedStatement = connect.prepareStatement("SELECT * from "+ table);
             resultSet = preparedStatement.executeQuery();
             return resultSet;
-    
-    
+   
     }
     
     @Override
@@ -91,7 +94,8 @@ public class ConnexionOracle extends Connexion {
     
     @Override
     public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
-        
+       
+           
         String text = "The columns in the table are : \r\n";
         
         for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
@@ -99,7 +103,23 @@ public class ConnexionOracle extends Connexion {
         }
         
         return text;
+       
     }
+   
+
+    
+    @Override
+    public String writePrimaryKeysToString(String nomTable) throws SQLException {
+        metadata = connect.getMetaData();
+        ResultSet clefs = metadata.getPrimaryKeys(connect.getCatalog(), connect.getSchema(), nomTable);
+        String text = "";
+        while (clefs.next()) {
+            String nomColonne = clefs.getString("COLUMN_NAME");
+            text = text + ("La colonne " + nomColonne + " est une clef primaire de " + nomTable + "\r\n");
+        }
+        return text;
+    }
+
 
     @Override
     public void writeResultSet(ResultSet resultSet) throws SQLException {
@@ -129,12 +149,12 @@ public class ConnexionOracle extends Connexion {
                 resultSet.close();
             }
 
-            if (stmt != null) {
-                stmt.close();
+            if (statement != null) {
+                statement.close();
             }
 
-            if (conn != null) {
-                conn.close();
+            if (connect != null) {
+                connect.close();
             }
         } catch (Exception e) {
 

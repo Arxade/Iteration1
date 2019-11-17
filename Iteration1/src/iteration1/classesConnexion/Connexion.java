@@ -7,6 +7,7 @@ package iteration1.classesConnexion;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.*;
 
 /**
  *
@@ -20,6 +21,7 @@ public abstract class Connexion {
     public abstract void writeMetaData(ResultSet resultSet) throws SQLException;
     public abstract String writeMetaDataToString(ResultSet resultSet) throws SQLException;
     public abstract void writeResultSet(ResultSet resultSet) throws SQLException;
+    public abstract String writePrimaryKeysToString(String nomTable) throws SQLException;
     protected abstract void close(); 
     
     

@@ -6,6 +6,7 @@
 package iteration1.forms;
 
 import iteration1.classesConnexion.*;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 public class FormConnect extends javax.swing.JFrame {
 public Connexion co;
 public ResultSet donnees;
+public DatabaseMetaData metadata;
     
     /**
      * Creates new form FormConnect
@@ -210,18 +212,18 @@ public ResultSet donnees;
         {
             co = new ConnexionOracle();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
-            
         }
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     private void buttonColonnesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonColonnesActionPerformed
     try {
         donnees = co.getResultSetFromTable(textboxTable.getText());
+
     } catch (Exception ex) {
         javax.swing.JOptionPane.showMessageDialog(null,ex);
     }
     try {
-        textareaMetaData.setText(co.writeMetaDataToString(donnees));
+        textareaMetaData.setText(co.writeMetaDataToString(donnees) + co.writePrimaryKeysToString(textboxTable.getText().toUpperCase()));
     } catch (SQLException ex) {
         javax.swing.JOptionPane.showMessageDialog(null,ex);
     }
