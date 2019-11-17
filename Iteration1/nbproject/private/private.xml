@@ -5,17 +5,15 @@
             <url>src/iteration1/forms/FormConnect.java</url>
             <bookmark id="1">
                 <name/>
-                <line>218</line>
+                <line>286</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/ixada/Documents/NetBeansProjects/Iteration1/Iteration1/src/iteration1/classesConnexion/Connexion.java</file>
-            <file>file:/C:/Users/ixada/Documents/NetBeansProjects/Iteration1/Iteration1/src/iteration1/forms/FormConnect.java</file>
-            <file>file:/C:/Users/ixada/Documents/NetBeansProjects/Iteration1/Iteration1/src/iteration1/classesConnexion/ConnexionMySQL.java</file>
-            <file>file:/C:/Users/ixada/Documents/NetBeansProjects/Iteration1/Iteration1/src/iteration1/classesConnexion/ConnexionOracle.java</file>
+            <file>file:/C:/Users/Paul/Desktop/dev/projet/Iteration1/Iteration1/src/iteration1/gestFichiers/ConnectionDataJSON.java</file>
+            <file>file:/C:/Users/Paul/Desktop/dev/projet/Iteration1/Iteration1/src/iteration1/forms/FormConnect.java</file>
         </group>
     </open-files>
 </project-private>

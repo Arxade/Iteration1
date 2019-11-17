@@ -6,11 +6,16 @@
 package iteration1.forms;
 
 import iteration1.classesConnexion.*;
+import iteration1.gestFichiers.ConnectionDataJSON;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *
@@ -28,7 +33,33 @@ public DatabaseMetaData metadata;
         initComponents();
         textboxBDD.setVisible(false);
         labelBDD.setVisible(false);
-    }
+         
+       
+        ConnectionDataJSON js = new ConnectionDataJSON();
+        
+        //si le json existe on recup les donnees
+        if(js.jsonExist()){
+            
+            Hashtable<String, String> h;
+            h = new Hashtable<>();
+     
+            h = js.getJson();
+          
+            //on assigne a chaque champ les data du json
+            if("true".equals(h.get("isChecked"))){         
+                textboxURL.setText(h.get("URL"));
+                textboxLogin.setText(h.get("login"));
+                textboxPassword.setText(h.get("mdp"));
+                textboxBDD.setText(h.get("BDD"));
+                ckbxRemember.setSelected(true);
+            }      
+        }
+}
+    
+    
+        
+        
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -52,6 +83,7 @@ public DatabaseMetaData metadata;
         textboxBDD = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         textboxURL = new javax.swing.JTextField();
+        ckbxRemember = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         textareaMetaData = new javax.swing.JTextArea();
         jLabel6 = new javax.swing.JLabel();
@@ -90,6 +122,8 @@ public DatabaseMetaData metadata;
 
         jLabel7.setText("URL :");
 
+        ckbxRemember.setText("Se souvenir des paramètres");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -112,14 +146,18 @@ public DatabaseMetaData metadata;
                     .addComponent(comboboxSGBD, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 60, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(109, 109, 109)
-                        .addComponent(buttonConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(115, 115, 115)
-                        .addComponent(jLabel1)))
+                .addGap(115, 115, 115)
+                .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(buttonConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(110, 110, 110))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(ckbxRemember)
+                        .addGap(92, 92, 92))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,9 +184,11 @@ public DatabaseMetaData metadata;
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelBDD)
                     .addComponent(textboxBDD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(44, 44, 44)
+                .addGap(25, 25, 25)
+                .addComponent(ckbxRemember)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(buttonConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(39, 39, 39))
+                .addGap(28, 28, 28))
         );
 
         textareaMetaData.setColumns(20);
@@ -202,7 +242,34 @@ public DatabaseMetaData metadata;
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConnectActionPerformed
-      //Connexion à la BDD en fonction du SGBD choisi
+        
+        ConnectionDataJSON js = new ConnectionDataJSON();
+        Hashtable<String, String> h = new Hashtable<>();
+
+        //si se souvenir des parametres est coché
+        if(ckbxRemember.isSelected()){
+             
+            h.put("URL", textboxURL.getText());
+            h.put("login", textboxLogin.getText());
+            h.put("mdp",  textboxPassword.getText());
+            h.put("BDD", textboxBDD.getText());
+            h.put("isChecked", "true");
+            
+            js.saveJSON(h);
+        }
+        //sinon
+        else{
+            h.put("URL", "");
+            h.put("login", "");
+            h.put("mdp",  "");
+            h.put("BDD", "");
+            h.put("isChecked", "false");
+            
+            js.saveJSON(h); 
+        }
+        
+        
+        //Connexion à la BDD en fonction du SGBD choisi
         if(comboboxSGBD.getSelectedItem()=="MySQL")
         {
             co = new ConnexionMySQL();
@@ -213,6 +280,7 @@ public DatabaseMetaData metadata;
             co = new ConnexionOracle();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
         }
+   
     }//GEN-LAST:event_buttonConnectActionPerformed
 
     private void buttonColonnesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonColonnesActionPerformed
@@ -275,12 +343,18 @@ public DatabaseMetaData metadata;
             public void run() {
                 new FormConnect().setVisible(true);
             }
-        });
+        });   
     }
+    
+
+    
+  
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonColonnes;
     private javax.swing.JButton buttonConnect;
+    private javax.swing.JCheckBox ckbxRemember;
     private javax.swing.JComboBox<String> comboboxSGBD;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
