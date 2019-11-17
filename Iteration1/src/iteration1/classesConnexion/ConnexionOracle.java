@@ -5,12 +5,6 @@
  */
 package iteration1.classesConnexion;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.*;
 import java.util.Date;
 import javax.swing.DefaultListModel;
@@ -21,64 +15,57 @@ import javax.swing.JOptionPane;
  * @author Paul
  */
 public class ConnexionOracle extends Connexion {
-    
+
     private Connection connect = null;
     private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
     private DatabaseMetaData metadata = null;
-    
-    public ConnexionOracle(){}
-    
-    @Override
-    public void connexion(String user, String psswd, String URL, String nomBDD){
-    
-        try  
-        {
-            //On modifira l'ui pour s'adapter à Oracle, MySQL n'ayant pas exactement la même organisation//
-            connect = DriverManager.getConnection("jdbc:oracle:thin:@" + URL, user , psswd);
-            if (connect != null)
-            {
-                javax.swing.JOptionPane.showMessageDialog(null, "Connected to the database!");
-                              metadata = connect.getMetaData(); 
 
-                
+    public ConnexionOracle() {
+    }
+
+    @Override
+    public void connexion(String user, String psswd, String URL, String nomBDD) {
+
+        try {
+            //On modifira l'ui pour s'adapter à Oracle, MySQL n'ayant pas exactement la même organisation//
+            connect = DriverManager.getConnection("jdbc:oracle:thin:@" + URL, user, psswd);
+            if (connect != null) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Connected to the database!");
+                metadata = connect.getMetaData();
+
                 // Accéder à la liste des tables
-                Statement stmt= connect.createStatement();
+                Statement stmt = connect.createStatement();
                 ResultSet res = stmt.executeQuery("SELECT table_name FROM user_tables");
-                DefaultListModel model=new DefaultListModel();
-                while(res.next())
-                {
+                DefaultListModel model = new DefaultListModel();
+                while (res.next()) {
                     model.addElement(res.getString("TABLE_NAME"));
 
                 }
-            }
-            else
-            {
+            } else {
                 javax.swing.JOptionPane.showMessageDialog(null, "Failed to make connection!");
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
             javax.swing.JOptionPane.showMessageDialog(null, e);
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null,e);
+            javax.swing.JOptionPane.showMessageDialog(null, e);
             e.printStackTrace();
         }
 
-    
     }
-    
-    @Override
-    public ResultSet getResultSetFromTable(String table) throws Exception{
-                statement = connect.createStatement();
 
-            preparedStatement = connect.prepareStatement("SELECT * from "+ table);
-            resultSet = preparedStatement.executeQuery();
-            return resultSet;
-   
+    @Override
+    public ResultSet getResultSetFromTable(String table) throws Exception {
+        statement = connect.createStatement();
+
+        preparedStatement = connect.prepareStatement("SELECT * from " + table);
+        resultSet = preparedStatement.executeQuery();
+        return resultSet;
+
     }
-    
+
     @Override
     public void writeMetaData(ResultSet resultSet) throws SQLException {
         //  Now get some metadata from the database
@@ -103,9 +90,7 @@ public class ConnexionOracle extends Connexion {
 
         return text;
     }
-   
 
-    
     @Override
     public String writePrimaryKeysToString(String nomTable) throws SQLException {
         metadata = connect.getMetaData();
@@ -117,7 +102,6 @@ public class ConnexionOracle extends Connexion {
         }
         return text;
     }
-
 
     @Override
     public void writeResultSet(ResultSet resultSet) throws SQLException {
@@ -139,7 +123,7 @@ public class ConnexionOracle extends Connexion {
             System.out.println("Comment: " + comment);
         }
     }
-    
+
     @Override
     protected void close() {
         try {
@@ -158,5 +142,5 @@ public class ConnexionOracle extends Connexion {
 
         }
     }
-      
+
 }

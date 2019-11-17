@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package iteration1;
+
 import iteration1.forms.*;
-import iteration1.classesConnexion.*;
 
 /**
  *
@@ -18,7 +18,7 @@ public class Iteration1 {
      */
     public static void main(String[] args) {
         FormConnect form = new FormConnect();
-        form.setVisible(true);     
+        form.setVisible(true);
     }
-    
+
 }
