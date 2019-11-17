@@ -84,26 +84,24 @@ public class ConnexionOracle extends Connexion {
         //  Now get some metadata from the database
         // Result set get the result of the SQL query
 
-        System.out.println("The columns in the table are: ");
+        System.out.println("Les colonnes de la table sont : ");
 
         System.out.println("Table: " + resultSet.getMetaData().getTableName(1));
-        for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
-            System.out.println("Column " +i  + " "+ resultSet.getMetaData().getColumnName(i));
+        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+            System.out.println("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i));
         }
     }
-    
+
     @Override
     public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
-       
-           
-        String text = "The columns in the table are : \r\n";
-        
-        for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
-            text = text + ("Column " +i  + " "+ resultSet.getMetaData().getColumnName(i) + "\r\n");
+
+        String text = "Les colonnes de la table sont : \r\n";
+
+        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+            text = text + ("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i) + "\r\n");
         }
-        
+
         return text;
-       
     }
    
 
