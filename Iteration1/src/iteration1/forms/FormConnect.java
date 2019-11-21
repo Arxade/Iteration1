@@ -276,14 +276,26 @@ public class FormConnect extends javax.swing.JFrame {
 
     private void buttonColonnesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonColonnesActionPerformed
         //Obtention et affichage des données de la table
+         String tuples = "";
         try {
             donnees = co.getResultSetFromTable(textboxTable.getText());
 
         } catch (Exception ex) {
             javax.swing.JOptionPane.showMessageDialog(null, ex);
         }
+        
+        try
+        {
+            tuples = co.writeSelectToString(textboxTable.getText());
+        }
+        catch(SQLException ex)
+        {
+            javax.swing.JOptionPane.showMessageDialog(null,ex);
+        } catch (Exception ex) {
+            Logger.getLogger(FormConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
-            textareaMetaData.setText(co.writeMetaDataToString(donnees) + co.writePrimaryKeysToString(textboxTable.getText().toUpperCase()));
+            textareaMetaData.setText(co.writeMetaDataToString(donnees) + co.writePrimaryKeysToString(textboxTable.getText().toUpperCase()) + co.writeForeignKeysToString(textboxTable.getText().toUpperCase()) + co.writeConstraintsToString(textboxTable.getText().toUpperCase()) + tuples);
         } catch (SQLException ex) {
             javax.swing.JOptionPane.showMessageDialog(null, ex);
         }

@@ -24,6 +24,14 @@ public abstract class Connexion {
     public abstract void writeResultSet(ResultSet resultSet) throws SQLException;
 
     public abstract String writePrimaryKeysToString(String nomTable) throws SQLException;
+    
+    public abstract String writeForeignKeysToString(String nomTable) throws SQLException;
+    
+    public abstract String writeConstraintsToString(String nomTable) throws SQLException;
+    
+    public abstract String writeSelectToString(String nomTable) throws SQLException, Exception;
+    
+    
 
     protected abstract void close();
 

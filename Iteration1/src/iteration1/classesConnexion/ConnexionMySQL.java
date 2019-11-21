@@ -5,7 +5,13 @@
  */
 package iteration1.classesConnexion;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 
 /**
@@ -86,6 +92,58 @@ public class ConnexionMySQL extends Connexion {
         while (clefs.next()) {
             String nomColonne = clefs.getString("COLUMN_NAME");
             text = text + ("La colonne " + nomColonne + " est une clef primaire de " + nomTable + "\r\n");
+        }
+        return text;
+    }
+    
+    @Override
+    public String writeForeignKeysToString(String nomTable) throws SQLException {
+        metadata = connect.getMetaData();
+        ResultSet clefs = metadata.getImportedKeys(connect.getCatalog(), connect.getSchema(), nomTable);
+        String text = "";
+        while (clefs.next()) {
+            String nomColonne = clefs.getString("FKCOLUMN_NAME ");
+            String nomColonnePk = clefs.getString("PKCOLUMN_NAME");
+            String nomTablePk = clefs.getString("PKTABLE_NAME");
+            text = text + ("La colonne " + nomColonne + " est une clef etrangere de " + nomTable + " referenceant "+ nomColonnePk+" de "+ nomTablePk +"\r\n");
+        }
+        return text;
+    }
+    
+    @Override
+    public String writeConstraintsToString(String nomTable) throws SQLException {
+        metadata = connect.getMetaData();
+        ResultSet clefs = metadata.getIndexInfo(connect.getCatalog(), connect.getSchema(), nomTable, false, false);
+        String text = "";
+        while (clefs.next()) 
+        {
+            String nomIndex = clefs.getString("INDEX_NAME");
+            String type = clefs.getString("TYPE");
+            String nomColonne = clefs.getString("COLUMN_NAME");
+            text = text + ("La contrainte " + nomIndex + " est liée à la colonne " + nomColonne + " de type: "+ type+" \r\n");
+        }
+        return text;
+    }
+    
+    @Override
+    public String writeSelectToString(String nomTable) throws SQLException, Exception {
+        String text = "";
+        resultSet=getResultSetFromTable(nomTable);
+        ResultSet rsTable=getResultSetFromTable(nomTable);
+        while(resultSet.next())
+        {
+            for(int y=1;y<( rsTable.getMetaData().getColumnCount() )+1;y++)
+            {
+                if(y==rsTable.getMetaData().getColumnCount())
+                {
+                    text = text + resultSet.getString(y) + "\r\n";
+                }
+                else
+                {
+                    text = text + resultSet.getString(y) + " ";
+                }
+                
+            }
         }
         return text;
     }
