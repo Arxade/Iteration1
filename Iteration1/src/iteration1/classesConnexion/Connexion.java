@@ -6,29 +6,25 @@
 package iteration1.classesConnexion;
 
 import java.sql.*;
-
+    import java.util.ArrayList;
 
 /**
  *
  * @author Arxade
  */
 public abstract class Connexion {
-    
+
     protected Connection connect = null;
-    protected DatabaseMetaData metadata = null;
+    protected DatabaseMetaData dbMetadata = null;
     protected Statement statement = null;
     protected ResultSet resultSet = null;
     protected PreparedStatement preparedStatement = null;
-    
-    
+
 
     public abstract void connexion(String nomBDD, String user, String psswd, String URL);
 
     public abstract ResultSet getResultSetFromTable(String table) throws Exception;
 
-     
-    
-    
     public void writeMetaData(ResultSet resultSet) throws SQLException {
         //  Now get some metadata from the database
         // Result set get the result of the SQL query
@@ -41,20 +37,18 @@ public abstract class Connexion {
         }
     }
 
-    
-    
-        public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
+    public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
 
         String text = "Les colonnes de la table sont : \r\n";
 
         for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-            text = text + ("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i) + " Type: "+ resultSet.getMetaData().getColumnTypeName(i)+"\r\n");
+            text = text + ("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i) + " Type: " + resultSet.getMetaData().getColumnTypeName(i) + "\r\n");
         }
 
         return text;
     }
 
-        public void writeResultSet(ResultSet resultSet) throws SQLException {
+    public void writeResultSet(ResultSet resultSet) throws SQLException {
         // ResultSet is initially before the first data set
         while (resultSet.next()) {
             // It is possible to get the columns via name
@@ -73,12 +67,10 @@ public abstract class Connexion {
             System.out.println("Comment: " + comment);
         }
     }
-        
-        
 
     public String writePrimaryKeysToString(String nomTable) throws SQLException {
-        metadata = connect.getMetaData();
-        ResultSet clefs = metadata.getPrimaryKeys(connect.getCatalog(), connect.getSchema(), nomTable);
+        dbMetadata = connect.getMetaData();
+        ResultSet clefs = dbMetadata.getPrimaryKeys(connect.getCatalog(), connect.getSchema(), nomTable);
         String text = "";
         while (clefs.next()) {
             String nomColonne = clefs.getString("COLUMN_NAME");
@@ -86,57 +78,62 @@ public abstract class Connexion {
         }
         return text;
     }
-    
+
     public String writeForeignKeysToString(String nomTable) throws SQLException {
-        metadata = connect.getMetaData();
-        ResultSet clefs = metadata.getImportedKeys(connect.getCatalog(), connect.getSchema(), nomTable);
+        dbMetadata = connect.getMetaData();
+        ResultSet clefs = dbMetadata.getImportedKeys(connect.getCatalog(), connect.getSchema(), nomTable);
         String text = "";
         while (clefs.next()) {
             String nomColonne = clefs.getString("FKCOLUMN_NAME ");
             String nomColonnePk = clefs.getString("PKCOLUMN_NAME");
             String nomTablePk = clefs.getString("PKTABLE_NAME");
-            text = text + ("La colonne " + nomColonne + " est une clef etrangere de " + nomTable + " referenceant "+ nomColonnePk+" de "+ nomTablePk +"\r\n");
+            text = text + ("La colonne " + nomColonne + " est une clef etrangere de " + nomTable + " referenceant " + nomColonnePk + " de " + nomTablePk + "\r\n");
         }
         return text;
     }
-    
+
     public String writeConstraintsToString(String nomTable) throws SQLException {
-        metadata = connect.getMetaData();
-        ResultSet clefs = metadata.getIndexInfo(connect.getCatalog(), connect.getSchema(), nomTable, false, false);
+        dbMetadata = connect.getMetaData();
+        ResultSet clefs = dbMetadata.getIndexInfo(connect.getCatalog(), connect.getSchema(), nomTable, false, false);
         String text = "";
-        while (clefs.next()) 
-        {
+        while (clefs.next()) {
             String nomIndex = clefs.getString("INDEX_NAME");
             String type = clefs.getString("TYPE");
             String nomColonne = clefs.getString("COLUMN_NAME");
-            text = text + ("La contrainte " + nomIndex + " est liée à la colonne " + nomColonne + " de type: "+ type+" \r\n");
+            text = text + ("La contrainte " + nomIndex + " est liée à la colonne " + nomColonne + " de type: " + type + " \r\n");
         }
         return text;
     }
-    
+
     public String writeSelectToString(String nomTable) throws SQLException, Exception {
         String text = "";
-        resultSet=getResultSetFromTable(nomTable);
-        ResultSet rsTable=getResultSetFromTable(nomTable);
-        while(resultSet.next())
-        {
-            for(int y=1;y<( rsTable.getMetaData().getColumnCount() )+1;y++)
-            {
-                if(y==rsTable.getMetaData().getColumnCount())
-                {
+        resultSet = getResultSetFromTable(nomTable);
+        ResultSet rsTable = getResultSetFromTable(nomTable);
+        while (resultSet.next()) {
+            for (int y = 1; y < (rsTable.getMetaData().getColumnCount()) + 1; y++) {
+                if (y == rsTable.getMetaData().getColumnCount()) {
                     text = text + resultSet.getString(y) + "\r\n";
-                }
-                else
-                {
+                } else {
                     text = text + resultSet.getString(y) + " ";
                 }
-                
+
             }
         }
         return text;
     }
-    
-    
+
+    public ArrayList<String> getTables() throws SQLException {
+        String[] types = {"TABLE"};
+        ArrayList<String> tables = new ArrayList<>();
+        dbMetadata = connect.getMetaData();
+        ResultSet rsTables = dbMetadata.getTables(connect.getCatalog(), connect.getSchema(), "%", types);
+        while (rsTables.next()) {
+            tables.add(rsTables.getString("TABLE_NAME"));
+        }
+        return tables;
+
+    }
+
     protected void close() {
         try {
             if (resultSet != null) {
