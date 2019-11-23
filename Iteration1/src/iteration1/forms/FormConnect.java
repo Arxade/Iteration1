@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -33,8 +34,13 @@ public class FormConnect extends javax.swing.JFrame {
      */
     public FormConnect() {
         initComponents();
+             
         jTabbedPane1.setEnabledAt(1, false);
         ConnectionDataJSON js = new ConnectionDataJSON();
+        
+        //empecher selection élément du tableau
+        tableInfo.setRowSelectionAllowed(false);
+        tableInfo.setColumnSelectionAllowed(false);
 
         //si le json existe on recup les donnees
         if (js.jsonExist()) {
@@ -84,6 +90,8 @@ public class FormConnect extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         listTables = new javax.swing.JList<>();
         jLabel5 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableInfo = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -139,7 +147,7 @@ public class FormConnect extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(97, 97, 97)
                         .addComponent(ckbxRemember)))
-                .addGap(0, 408, Short.MAX_VALUE))
+                .addGap(0, 629, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -175,7 +183,7 @@ public class FormConnect extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelBDD)
                     .addComponent(textboxBDD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 137, Short.MAX_VALUE)
                 .addComponent(ckbxRemember)
                 .addGap(18, 18, 18)
                 .addComponent(buttonConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -184,9 +192,39 @@ public class FormConnect extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Connexion à la base de données", jPanel1);
 
+        listTables.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listTablesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(listTables);
 
         jLabel5.setText("Liste des tables :");
+
+        tableInfo.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "#", "Nom", "Type", "Clé primaire", "Clé étrangère", "Not null", "Valeur par défaut", "Unique"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(tableInfo);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -200,16 +238,23 @@ public class FormConnect extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(31, 31, 31)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(425, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 626, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(153, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Gestion des tables", jPanel2);
@@ -282,6 +327,28 @@ public class FormConnect extends javax.swing.JFrame {
 
     }//GEN-LAST:event_buttonConnectActionPerformed
 
+    private void listTablesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listTablesMouseClicked
+        // TODO add your handling code here:
+        
+        //on recup le modele du Jtable
+        DefaultTableModel model = (DefaultTableModel) tableInfo.getModel();
+        model.setRowCount(0);
+        
+        //on rempli le Jtable avec les infos de la table grace a getColonnes(nomTable);
+        try {
+            ArrayList<Object[]> tab = co.getColonnes(listTables.getSelectedValue());
+            
+            for(int i = 0; i<tab.size(); i++){
+                model.addRow(tab.get(i));
+            }
+         
+        } catch (SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(null, e);
+        }
+        
+        
+    }//GEN-LAST:event_listTablesMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -331,9 +398,11 @@ public class FormConnect extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel labelBDD;
     private javax.swing.JList<String> listTables;
+    private javax.swing.JTable tableInfo;
     private javax.swing.JTextField textboxBDD;
     private javax.swing.JTextField textboxLogin;
     private javax.swing.JPasswordField textboxPassword;

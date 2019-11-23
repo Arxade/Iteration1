@@ -7,6 +7,7 @@ package iteration1.classesConnexion;
 
 import java.sql.*;
     import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  *
@@ -23,88 +24,113 @@ public abstract class Connexion {
 
     public abstract void connexion(String nomBDD, String user, String psswd, String URL);
 
-    public abstract ResultSet getResultSetFromTable(String table) throws Exception;
+    //METHODE INUTILISEE POUR LINSTANT
+    //public abstract ResultSet getResultSetFromTable(String table) throws Exception;
 
-    public void writeMetaData(ResultSet resultSet) throws SQLException {
-        //  Now get some metadata from the database
-        // Result set get the result of the SQL query
-
-        System.out.println("Les colonnes de la table sont : ");
-
-        System.out.println("Table: " + resultSet.getMetaData().getTableName(1));
-        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-            System.out.println("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i));
-        }
+    
+    public ArrayList<Object[]> getColonnes(String nomTable)throws SQLException{
+        
+        //get info de la table, nombre de colonnes        
+        resultSet = dbMetadata.getColumns(null, null, nomTable, null);   
+        ArrayList<Object[]> tab = new ArrayList<>();
+        
+        //compteur pour l'affichage du numéro du champ
+        int compteur = 1;
+        
+        //on récupere les clés primaires et etrangeres
+        ArrayList<String> clefsPrimaire = getPrimaryKey(nomTable);
+        ArrayList<Hashtable> clefsEtrangere = getForeignKey(nomTable);
+        
+        //ajout des noms de colonnes au tableau de string
+        while(resultSet.next()){
+            
+            Object[] data = new Object[8]; 
+            
+            //numero de la colonne
+            data[0] = compteur;
+            
+            //nom de la colonne
+            data[1] = resultSet.getString("COLUMN_NAME");
+            
+            //type de la colonne
+            data[2] = resultSet.getString("TYPE_NAME");
+            
+            //on teste si la colonne actuelle est une clé primaire
+            data[3] = false;           
+            for(int i = 0; i < clefsPrimaire.size(); i++) {                 
+                if(!(boolean)data[3]){
+                    data[3] = clefsPrimaire.get(i).equals(data[1]);
+                }                 
+            }  
+                 
+            //test si la colonne actuelle fait parti de la ou des cléfs etrangeres
+            data[4] = "";           
+            for (int i = 0; i < clefsEtrangere.size(); i++) {
+                if(data[4].equals("")){
+                    if (clefsEtrangere.get(i).get("FKCOLUMN_NAME").equals(data[1])){
+                        data[4] = clefsEtrangere.get(i).get("PKTABLE_NAME") + "(" + clefsEtrangere.get(i).get("PKCOLUMN_NAME") + ")";
+                    }            
+                }               
+            }
+            
+            
+            // /!\ A CORRIGER FONCTIONNE UNIQUEMENT AVEC LES CLE PRIMAIRES!!! /!\
+            //la colonne est nullable ou non 
+            data[5] = !resultSet.getBoolean("NULLABLE");
+            
+            //valeur par défaut de la colonne
+            data[6] = resultSet.getString("COLUMN_DEF");
+            
+            //FONCTION A AJOUTER: CONTRAINTE UNIQUE
+            
+            //on ajoute les infos de la colonne a l'arraylist retourné + incrémentation du compteur
+            tab.add(data);
+            compteur++;
+        }   
+        return tab;
     }
-
-    public String writeMetaDataToString(ResultSet resultSet) throws SQLException {
-
-        String text = "Les colonnes de la table sont : \r\n";
-
-        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-            text = text + ("Colonne " + i + " " + resultSet.getMetaData().getColumnName(i) + " Type: " + resultSet.getMetaData().getColumnTypeName(i) + "\r\n");
-        }
-
-        return text;
+    
+    
+    //methode retournant un arraylist des noms des cléfs primaires
+    private ArrayList<String> getPrimaryKey(String nomTable) throws SQLException {
+              
+        ResultSet rs = dbMetadata.getPrimaryKeys(null, null, nomTable);
+        
+        ArrayList<String> tab = new ArrayList<>();
+  
+        //on rempli l'arraylist des nom des clés primaires
+        while(rs.next()) {
+            tab.add(rs.getString("COLUMN_NAME"));             
+        }      
+        return tab;
     }
-
-    public void writeResultSet(ResultSet resultSet) throws SQLException {
-        // ResultSet is initially before the first data set
-        while (resultSet.next()) {
-            // It is possible to get the columns via name
-            // also possible to get the columns via the column number
-            // which starts at 1
-            // e.g. resultSet.getSTring(2);
-            String user = resultSet.getString("myuser");
-            String website = resultSet.getString("webpage");
-            String summary = resultSet.getString("summary");
-            java.util.Date date = resultSet.getDate("datum");
-            String comment = resultSet.getString("comments");
-            System.out.println("User: " + user);
-            System.out.println("Website: " + website);
-            System.out.println("summary: " + summary);
-            System.out.println("Date: " + date);
-            System.out.println("Comment: " + comment);
-        }
-    }
-
-    public String writePrimaryKeysToString(String nomTable) throws SQLException {
-        dbMetadata = connect.getMetaData();
-        ResultSet clefs = dbMetadata.getPrimaryKeys(connect.getCatalog(), connect.getSchema(), nomTable);
-        String text = "";
+   
+    
+    
+    //methode retournant un tableau de Hashtable contenant pour chacun des éléments : 
+    //le nom de la colonne , la clé primaire sur laquelle elle pointe et la table sur laqelle elle pointe.
+    private ArrayList<Hashtable> getForeignKey(String nomTable) throws SQLException {
+        
+        ResultSet clefs = dbMetadata.getImportedKeys(null, null, nomTable);
+        
+        ArrayList<Hashtable> tab = new ArrayList<>();
+         
+        //on rempli l'arraylist des hashtable des foreign keys
         while (clefs.next()) {
-            String nomColonne = clefs.getString("COLUMN_NAME");
-            text = text + ("La colonne " + nomColonne + " est une clef primaire de " + nomTable + "\r\n");
+            Hashtable<String, String> h = new Hashtable<>();
+            h.put("FKCOLUMN_NAME",clefs.getString("FKCOLUMN_NAME")) ;
+            h.put("PKCOLUMN_NAME", clefs.getString("PKCOLUMN_NAME"));
+            h.put("PKTABLE_NAME", clefs.getString("PKTABLE_NAME"));
+            
+            tab.add(h);
         }
-        return text;
+        return tab;
     }
-
-    public String writeForeignKeysToString(String nomTable) throws SQLException {
-        dbMetadata = connect.getMetaData();
-        ResultSet clefs = dbMetadata.getImportedKeys(connect.getCatalog(), connect.getSchema(), nomTable);
-        String text = "";
-        while (clefs.next()) {
-            String nomColonne = clefs.getString("FKCOLUMN_NAME ");
-            String nomColonnePk = clefs.getString("PKCOLUMN_NAME");
-            String nomTablePk = clefs.getString("PKTABLE_NAME");
-            text = text + ("La colonne " + nomColonne + " est une clef etrangere de " + nomTable + " referenceant " + nomColonnePk + " de " + nomTablePk + "\r\n");
-        }
-        return text;
-    }
-
-    public String writeConstraintsToString(String nomTable) throws SQLException {
-        dbMetadata = connect.getMetaData();
-        ResultSet clefs = dbMetadata.getIndexInfo(connect.getCatalog(), connect.getSchema(), nomTable, false, false);
-        String text = "";
-        while (clefs.next()) {
-            String nomIndex = clefs.getString("INDEX_NAME");
-            String type = clefs.getString("TYPE");
-            String nomColonne = clefs.getString("COLUMN_NAME");
-            text = text + ("La contrainte " + nomIndex + " est liée à la colonne " + nomColonne + " de type: " + type + " \r\n");
-        }
-        return text;
-    }
-
+  
+   
+    /*
+    METHODE SELECT PAR NOM DE TABLE JE LA LAISSE ON VA SUREMENT SEN SERVIR PLUS TARD
+    
     public String writeSelectToString(String nomTable) throws SQLException, Exception {
         String text = "";
         resultSet = getResultSetFromTable(nomTable);
@@ -121,7 +147,10 @@ public abstract class Connexion {
         }
         return text;
     }
+    */
 
+    
+    //methode qui retourne la liste des tables
     public ArrayList<String> getTables() throws SQLException {
         String[] types = {"TABLE"};
         ArrayList<String> tables = new ArrayList<>();
@@ -134,6 +163,10 @@ public abstract class Connexion {
 
     }
 
+    
+    /*
+    METHODE QUI FERME LA CONNEXION ON LUTILISE PAS ENCORE MAIS EN VRAI FAUDRAI
+    
     protected void close() {
         try {
             if (resultSet != null) {
@@ -151,5 +184,6 @@ public abstract class Connexion {
 
         }
     }
+    */
 
 }

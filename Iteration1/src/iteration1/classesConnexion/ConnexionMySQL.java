@@ -7,7 +7,6 @@ package iteration1.classesConnexion;
 
 
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 
 
 /**
@@ -38,6 +37,9 @@ public class ConnexionMySQL extends Connexion {
         }
     }
 
+    /*
+    VOIR DANS "Connexion.java"
+    
     @Override
     public ResultSet getResultSetFromTable(String table) throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -49,4 +51,5 @@ public class ConnexionMySQL extends Connexion {
         return resultSet;
 
     }
+    */
 }

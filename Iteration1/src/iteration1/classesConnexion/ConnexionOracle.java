@@ -7,7 +7,6 @@ package iteration1.classesConnexion;
 
 
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
@@ -47,6 +46,9 @@ public class ConnexionOracle extends Connexion {
     
     }
     
+    /* 
+    VOIR DANS "Connexion.java"
+    
     @Override
     public ResultSet getResultSetFromTable(String table) throws Exception{
                 statement = connect.createStatement();
@@ -56,5 +58,7 @@ public class ConnexionOracle extends Connexion {
             return resultSet;
    
     }
+    */
+    
     
 }
