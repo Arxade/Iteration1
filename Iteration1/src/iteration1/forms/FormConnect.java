@@ -33,7 +33,7 @@ public class FormConnect extends javax.swing.JFrame {
      */
     public FormConnect() {
         initComponents();
-
+        jTabbedPane1.setEnabledAt(1, false);
         ConnectionDataJSON js = new ConnectionDataJSON();
 
         //si le json existe on recup les donnees
@@ -193,18 +193,21 @@ public class FormConnect extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(31, 31, 31)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(80, 80, 80)
+                        .addComponent(jLabel5))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(425, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addGap(33, 33, 33)
                 .addComponent(jLabel5)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(153, Short.MAX_VALUE))
         );
@@ -261,11 +264,13 @@ public class FormConnect extends javax.swing.JFrame {
         if (comboboxSGBD.getSelectedItem() == "MySQL") {
             co = new ConnexionMySQL();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
+            jTabbedPane1.setEnabledAt(1, true);
         } else {
             co = new ConnexionOracle();
             co.connexion(textboxLogin.getText(), textboxPassword.getText(), textboxURL.getText(), textboxBDD.getText());
+            jTabbedPane1.setEnabledAt(1, true);
         }
-        
+
         //Remplissage de la liste des tables
         try {
             String[] tables = new String[co.getTables().size()];
@@ -274,7 +279,6 @@ public class FormConnect extends javax.swing.JFrame {
         } catch (SQLException e) {
             javax.swing.JOptionPane.showMessageDialog(null, e);
         }
-
 
     }//GEN-LAST:event_buttonConnectActionPerformed
 
