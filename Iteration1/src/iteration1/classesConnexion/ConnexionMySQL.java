@@ -6,7 +6,9 @@
 package iteration1.classesConnexion;
 
 
+import java.awt.HeadlessException;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 
 /**
@@ -15,25 +17,28 @@ import java.sql.DriverManager;
  */
 public class ConnexionMySQL extends Connexion {
 
-   
-    public ConnexionMySQL() {
+    public ConnexionMySQL(String host, int port, String db) {
+        url = "jdbc:mysql://" + host + ':' + port + '/' + db;
     }
 
     @Override
-    public void connexion(String user, String psswd, String URL, String nomBDD) {
-
+    public boolean connexion(String url, String user, String password) {
         try {
             // chargement driver sql
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // setup connexion avec la BD
             connect = DriverManager
-                    .getConnection("jdbc:mysql://" + URL + "/" + nomBDD + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
-                            + "&user=" + user + "&password=" + psswd);
+                    .getConnection(url 
+                            + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+                            + "&user=" + user 
+                            + "&password=" + password);
             javax.swing.JOptionPane.showMessageDialog(null, "Connexion réussie");
+            return true;
 
-        } catch (Exception e) {
+        } catch (HeadlessException | ClassNotFoundException | SQLException e) {
             javax.swing.JOptionPane.showMessageDialog(null, e);
+            return false;
         }
     }
 

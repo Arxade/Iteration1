@@ -7,76 +7,63 @@ package iteration1.gestFichiers;
 
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.Hashtable;
-import org.json.simple.JSONArray;
+import java.io.IOException;
+import java.util.HashMap;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
  * @author Paul
  */
 public class ConnectionDataJSON {
-
-    public void saveJSON(Hashtable<String, String> h) {
-
+    private String sgbd;
+    private HashMap<String, String> params = new HashMap();
+    
+    public ConnectionDataJSON() {
         try {
-            //recup des infos de la hashtable pour les mettre dans data
+            JSONParser parser = new JSONParser();
+            Object obj = parser.parse(new FileReader("connectionData.json"));
+            JSONObject data = (JSONObject)obj;
+            sgbd = (String)data.get("SGBD");
+            params.put("Host", (String)data.get("Host"));
+            params.put("Port", (String)data.get("Port"));
+            params.put("Database", (String)data.get("Database"));
+        } catch (IOException | ParseException e) {
+            System.err.println(e);
+        }
+    }
+    
+    public HashMap<String, String> getParams() {
+        return params;
+    }
+    
+    public String getSGBD() {
+        return sgbd;
+    }
+    
+    public void setParam(String param, String value) {
+        if(param.equals("SGBD")) {
+            sgbd = value;
+        }
+        else {
+            params.put(param, value);
+        }
+    }
+    
+    public void save() {
+        try {
             JSONObject data = new JSONObject();
-
-            data.put("SGBD", h.get("SGBD"));
-            data.put("URL", h.get("URL"));
-            data.put("login", h.get("login"));
-            data.put("mdp", h.get("mdp"));
-            data.put("BDD", h.get("BDD"));
-            data.put("isChecked", h.get("isChecked"));
-
-            //ecriture du fichier connectData.json
-            FileWriter file = new FileWriter("connectData.json");
-
+            data.put("SGBD", sgbd);
+            data.put("Host", params.get("Host"));
+            data.put("Port", params.get("Port"));
+            data.put("Database", params.get("Database"));
+            FileWriter file = new FileWriter("connectionData.json");
             file.write(data.toJSONString());
             file.flush();
-        } catch (Exception e) {
-
-        }
-    }
-
-    public Hashtable<String, String> getJson() {
-
-        Hashtable<String, String> h = new Hashtable<>();
-
-        try {
-            //on recup le fihier JSON
-
-            JSONParser parser = new JSONParser();
-            Object obj = parser.parse(new FileReader("connectData.json"));
-            JSONObject data = (JSONObject) obj;
-
-            //on associe au hashtable les valeur du json
-            h.put("SGBD", (String) data.get("SGBD"));
-            h.put("URL", (String) data.get("URL"));
-            h.put("login", (String) data.get("login"));
-            h.put("mdp", (String) data.get("mdp"));
-            h.put("BDD", (String) data.get("BDD"));
-            h.put("isChecked", (String) data.get("isChecked"));
-
-            return h;
-
-        } catch (Exception e) {
-            h.clear();
-            h.put("erreur", e.getMessage());
+        } catch (IOException e) {
             System.out.println(e.getMessage());
-            return h;
-        }
-    }
-
-    //on teste l'existence du json
-    public boolean jsonExist() {
-        try {
-            FileReader fr = new FileReader("connectData.json");
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 }
