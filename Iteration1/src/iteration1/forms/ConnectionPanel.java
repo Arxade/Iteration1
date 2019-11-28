@@ -201,25 +201,25 @@ public class ConnectionPanel extends javax.swing.JPanel {
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         String sgbd = cbxSGBD.getSelectedItem().toString();
         json.setParam("SGBD", sgbd);
-        Connexion c;
+        Connexion connexion;
         //Connexion à la BDD en fonction du SGBD choisi
         switch(sgbd) {
             case "MySQL" :
-                c = new ConnexionMySQL(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
+                connexion = new ConnexionMySQL(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
                 break;
             default :
-                c = new ConnexionOracle(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
+                connexion = new ConnexionOracle(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
         }
         
         //Si la connexion est effectuée, sauvegarde le SGBD dans le JSON
         //et switche sur le JPanel VisualizationPanel
-        if(c.connexion(c.getURL(), txtUser.getText(), String.valueOf(txtPassword.getPassword()))) {
+        if(connexion.connexion(connexion.getURL(), txtUser.getText(), String.valueOf(txtPassword.getPassword()))) {
             json.save();
             MainFrame f = (MainFrame)SwingUtilities.getRoot(this);
             f.getCardLayout().next(f.getCards());
             f.setCurrentCard();
             VisualizationPanel vp = (VisualizationPanel)f.getCurrentCard();
-            vp.setConnection(c);
+            vp.setConnection(connexion);
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 

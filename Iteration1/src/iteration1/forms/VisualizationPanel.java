@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Kazed
  */
 public class VisualizationPanel extends javax.swing.JPanel {
-    private Connexion c;
+    private Connexion connexion;
     private ArrayList<Table> tables;
     /**
      * Creates new form VizualisationPanel
@@ -31,10 +31,10 @@ public class VisualizationPanel extends javax.swing.JPanel {
         tblAttributes.setColumnSelectionAllowed(false);
     }
     
-    public void setConnection(Connexion c) {
-        this.c = c;
+    public void setConnection(Connexion connexion) {
+        this.connexion = connexion;
         try {
-            tables = c.getTables();
+            tables = connexion.getTables();
         }
         catch(SQLException e) {
             javax.swing.JOptionPane.showMessageDialog(null, e);
@@ -48,8 +48,8 @@ public class VisualizationPanel extends javax.swing.JPanel {
         try {
             String[] tablesList = new String[tables.size()];
             int i = 0;
-            for(Table t : tables) {
-                tablesList[i] = t.getName();
+            for(Table table : tables) {
+                tablesList[i] = table.getName();
                 i++;
             }
             lstTables.setListData(tablesList);
@@ -183,16 +183,16 @@ public class VisualizationPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnDisonnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisonnectActionPerformed
-        c.close();
+        connexion.close();
         
         //Vide la liste
-        DefaultTableModel tm = (DefaultTableModel)tblAttributes.getModel();
-        tm.setRowCount(0);
+        DefaultTableModel tableModel = (DefaultTableModel)tblAttributes.getModel();
+        tableModel.setRowCount(0);
         
         //Switche l'affichage sur le JPanel ConnectionPanel 
-        MainFrame f = (MainFrame)SwingUtilities.getRoot(this);
-        f.getCardLayout().first(f.getCards());
-        f.setCurrentCard();
+        MainFrame mFrame = (MainFrame)SwingUtilities.getRoot(this);
+        mFrame.getCardLayout().first(mFrame.getCards());
+        mFrame.setCurrentCard();
     }//GEN-LAST:event_btnDisonnectActionPerformed
 
     private void lstTablesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstTablesMouseClicked
@@ -203,7 +203,7 @@ public class VisualizationPanel extends javax.swing.JPanel {
 
         //on rempli le Jtable avec les infos de la table grace a getColonnes(nomTable);
         try {
-            ArrayList<Object[]> tab = c.getColonnes(lstTables.getSelectedValue());
+            ArrayList<Object[]> tab = connexion.getColonnes(lstTables.getSelectedValue());
             for(int i = 0; i < tab.size(); i++){
                 tableModel.addRow(tab.get(i));
             }

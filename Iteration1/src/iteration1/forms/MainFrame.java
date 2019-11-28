@@ -19,11 +19,11 @@ public class MainFrame extends javax.swing.JFrame {
     private JPanel currentCard;
     /**
      * Creates new form FrameMain
-     * @param p
+     * @param panel
      */
-    public MainFrame(JPanel p) {
+    public MainFrame(JPanel panel) {
         initComponents();
-        this.cards = p;
+        this.cards = panel;
         cl = (CardLayout)cards.getLayout();
     }
     

@@ -20,15 +20,15 @@ public class Iteration1 {
      */
     public static void main(String[] args) {   
         //Initialisation des différents JPanel
-        ConnectionPanel p1 = new ConnectionPanel();
-        p1.setName("Connection");
-        VisualizationPanel p2 = new VisualizationPanel();
-        p2.setName("Visualization");
+        ConnectionPanel coPanel = new ConnectionPanel();
+        coPanel.setName("Connection");
+        VisualizationPanel vizPanel = new VisualizationPanel();
+        vizPanel.setName("Visualization");
         
         //Initialisation du CardLayout avec les JPanel
         JPanel cards = new JPanel(new CardLayout());
-        cards.add(p1);
-        cards.add(p2);
+        cards.add(coPanel);
+        cards.add(vizPanel);
         
         //Initialisation de la JFrame
         MainFrame frame = new MainFrame(cards);
@@ -39,8 +39,8 @@ public class Iteration1 {
         
         //Si les informations relatives à la connexion à la bdd ne sont pas 
         //trouvables dans le JSON, affiche le JDialog pour entrer les paramètres de l'URL
-        if(!p1.isURLSet()) {
-            p1.createParamsDialog().setVisible(true);
+        if(!coPanel.isURLSet()) {
+            coPanel.createParamsDialog().setVisible(true);
         }
     }
 
