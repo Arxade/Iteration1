@@ -215,10 +215,10 @@ public class ConnectionPanel extends javax.swing.JPanel {
         //et switche sur le JPanel VisualizationPanel
         if(connexion.connexion(connexion.getURL(), txtUser.getText(), String.valueOf(txtPassword.getPassword()))) {
             json.save();
-            MainFrame f = (MainFrame)SwingUtilities.getRoot(this);
-            f.getCardLayout().next(f.getCards());
-            f.setCurrentCard();
-            VisualizationPanel vp = (VisualizationPanel)f.getCurrentCard();
+            MainFrame mFrame = (MainFrame)SwingUtilities.getRoot(this);
+            mFrame.getCardLayout().next(mFrame.getCards());
+            mFrame.setCurrentCard();
+            VisualizationPanel vp = (VisualizationPanel)mFrame.getCurrentCard();
             vp.setConnection(connexion);
         }
     }//GEN-LAST:event_btnConnectActionPerformed
