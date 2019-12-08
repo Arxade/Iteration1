@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class ConnexionOracle extends Connexion {
     
     public ConnexionOracle(String host, int port, String db){
-       url = "jdbc:oracle:thin:@" + host + ':' + port + ':' + db;
+        url = "jdbc:oracle:thin:@" + host + ':' + port + ':' + db;
     }
     
     @Override

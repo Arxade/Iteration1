@@ -5,10 +5,13 @@
  */
 package iteration1.classesConnexion;
 
+import iteration1.DatabaseClasses.Attribute;
 import iteration1.DatabaseClasses.Table;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,105 +22,159 @@ public abstract class Connexion {
     protected Connection connect = null;
     protected DatabaseMetaData dbMetadata = null;
     protected Statement statement = null;
+    protected PreparedStatement foreignKeysList = null;
+    protected PreparedStatement constraintsList = null;
+    protected PreparedStatement findColumnByID = null;
     protected ResultSet resultSet = null;
     protected PreparedStatement preparedStatement = null;
-    
+    private HashMap<String, Table> tables = new HashMap<>();
+     
     public String getURL() {
         return url;
     }
     
     public abstract boolean connexion(String url, String user, String password);
-    
-    //METHODE INUTILISEE POUR LINSTANT
-    //public abstract ResultSet getResultSetFromTable(String table) throws Exception;
 
-    public ArrayList<Object[]> getColonnes(String nomTable)throws SQLException{
-        //get info de la table, nombre de colonnes        
-        resultSet = dbMetadata.getColumns(null, null, nomTable, null);   
-        ArrayList<Object[]> tab = new ArrayList<>();
+    public void prepareStatements() throws SQLException {
+        findColumnByID = connect.prepareStatement("SELECT column_name " +
+                                                        "FROM all_tab_columns " +
+                                                        "WHERE table_name = ? " +
+                                                        "AND column_id = ?");
+            foreignKeysList = connect.prepareStatement("SELECT t1.column_id COLUMN_ID, c2.table_name R_TABLE_NAME, t2.column_id R_COLUMN_ID " +
+                                                "FROM all_constraints c " +
+                                                "JOIN all_cons_columns c1 ON(c1.constraint_name = c.constraint_name) " +
+                                                "JOIN all_cons_columns c2 ON(c.r_constraint_name = c2.constraint_name) " +
+                                                "LEFT OUTER JOIN all_tab_columns t1 ON(t1.table_name = c1.table_name AND t1.column_name = c1.column_name) " +
+                                                "LEFT OUTER JOIN all_tab_columns t2 ON(t2.table_name = c2.table_name AND t2.column_name = c2.column_name) " +
+                                                "WHERE c.table_name = ? " +
+                                                "ORDER BY t1.column_id");
+            constraintsList = connect.prepareStatement("SELECT column_id, constraint_type, search_condition " +
+                                                    "FROM all_cons_columns " +
+                                                    "NATURAL JOIN all_tab_columns " +
+                                                    "NATURAL JOIN all_constraints " +
+                                                    "WHERE constraint_type <> 'R' " +
+                                                    "AND table_name = ? " +
+                                                    "ORDER BY column_id");
+    }
+    
+    public void setTables() throws SQLException {
+        dbMetadata = connect.getMetaData();
+        resultSet = dbMetadata.getTables(connect.getCatalog(), connect.getSchema(), "%", new String[]{"TABLE"});
+        while (resultSet.next()) {
+            String table = resultSet.getString("TABLE_NAME");
+            tables.put(table, new Table(table));
+        }
+    }
+    
+    public HashMap<String, Table> getTables() {
+        return tables;
+    }
+    
+    public void tableColumns(String table)throws SQLException{
+        tables.get(table).attributes().clear();
+        ArrayList<HashMap> fk = getForeignKeys(table);
+        ArrayList<HashMap> cons = getConstraints(table);
+        resultSet = dbMetadata.getColumns(null, null, table, null);
+        ArrayList<Attribute> colonnes = new ArrayList<>();
         
-        //on récupere les clés primaires et etrangeres
-        ArrayList<String> clefsPrimaire = getPrimaryKey(nomTable);
-        ArrayList<HashMap> clefsEtrangere = getForeignKey(nomTable);
-        
-        //ajout des noms de colonnes au tableau de string
+        //Récupération des colonnes de la table
         while(resultSet.next()){
-            Object[] data = new Object[8]; 
-            
-            //nom de la colonne
-            data[0] = resultSet.getString("COLUMN_NAME");
-            
-            //type de la colonne
-            data[1] = resultSet.getString("TYPE_NAME");
-            
-            //longueur de la colonne
-            data[2] = resultSet.getString("COLUMN_SIZE");
-            
-            //on teste si la colonne actuelle est une clé primaire
-            data[3] = false;           
-            for(int i = 0; i < clefsPrimaire.size(); i++) {                 
-                if(!(boolean)data[3]){
-                    data[3] = clefsPrimaire.get(i).equals(data[0]);
-                }                 
-            }  
-                 
-            //test si la colonne actuelle fait parti de la ou des cléfs etrangeres
-            data[4] = "";           
-            for (int i = 0; i < clefsEtrangere.size(); i++) {
-                if(data[4].equals("")){
-                    if (clefsEtrangere.get(i).get("FKCOLUMN_NAME").equals(data[0])){
-                        data[4] = clefsEtrangere.get(i).get("PKTABLE_NAME") + "(" + clefsEtrangere.get(i).get("PKCOLUMN_NAME") + ")";
-                    }            
-                }               
+            colonnes.add(new Attribute(resultSet.getString("COLUMN_NAME"), 
+                            resultSet.getString("TYPE_NAME"),
+                            resultSet.getInt("COLUMN_SIZE")));
+        }
+        
+        //Ajout des clefs étrangères et des autres contraintes
+        fk.forEach((c) -> {
+            try {
+                findColumnByID.setString(1, c.get("R_TABLE_NAME").toString());
+                findColumnByID.setString(2, c.get("R_COLUMN_ID").toString());
+                resultSet = findColumnByID.executeQuery();
+                while(resultSet.next()){
+                    colonnes.get((int)c.get("COLUMN_ID") - 1).foreignKey(c.get("R_TABLE_NAME").toString(), resultSet.getString("COLUMN_NAME"));
+                }
             }
-            
-            //la colonne est nullable ou non
-            data[5] = !(resultSet.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
-            
-            //valeur par défaut de la colonne
-            data[6] = resultSet.getString("COLUMN_DEF");
-            
-            //FONCTION A AJOUTER: CONTRAINTE UNIQUE
-            
-            //on ajoute les infos de la colonne a l'arraylist retourné + incrémentation du compteur
-            tab.add(data);
-        }   
-        return tab;
+            catch (SQLException ex) {
+                Logger.getLogger(Connexion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }); 
+        cons.forEach((c) -> {
+            int a = (int)c.get("COLUMN_ID") - 1;
+            switch((char)c.get("CONSTRAINT_TYPE")) {
+                case 'C' :
+                    if(c.get("SEARCH_CONDITION").toString().contains("IS NOT NULL")) colonnes.get(a).isNullable(false);
+                    break;
+                case 'P' :
+                    colonnes.get(a).isPrimaryKey(true);
+                    break;
+                case 'U' :
+                    colonnes.get(a).isUnique(true);
+                    break;
+                default :
+                    break;
+            }
+        });
+        tables.get(table).attributes().addAll(colonnes);
     }
-    
-    
-    //methode retournant un arraylist des noms des cléfs primaires
-    private ArrayList<String> getPrimaryKey(String nomTable) throws SQLException {     
-        ResultSet rs = dbMetadata.getPrimaryKeys(null, null, nomTable);
-        ArrayList<String> tab = new ArrayList<>();
-  
-        //on rempli l'arraylist des nom des clés primaires
-        while(rs.next()) {
-            tab.add(rs.getString("COLUMN_NAME"));             
-        }      
-        return tab;
-    }
-   
-    
     
     //methode retournant un tableau de Hashtable contenant pour chacun des éléments : 
     //le nom de la colonne , la clé primaire sur laquelle elle pointe et la table sur laqelle elle pointe.
-    private ArrayList<HashMap> getForeignKey(String nomTable) throws SQLException {
-        ResultSet clefs = dbMetadata.getImportedKeys(null, null, nomTable);
+    private ArrayList<HashMap> getForeignKeys(String table) throws SQLException {
+        foreignKeysList.setString(1, table);
+        resultSet = foreignKeysList.executeQuery();
         ArrayList<HashMap> tab = new ArrayList<>();
-         
+  
         //on rempli l'arraylist des hashtable des foreign keys
-        while (clefs.next()) {
-            HashMap<String, String> h = new HashMap<>();
-            h.put("FKCOLUMN_NAME",clefs.getString("FKCOLUMN_NAME")) ;
-            h.put("PKCOLUMN_NAME", clefs.getString("PKCOLUMN_NAME"));
-            h.put("PKTABLE_NAME", clefs.getString("PKTABLE_NAME"));
+        while (resultSet.next()) {
+            HashMap<String, Object> h = new HashMap<>();
+            h.put("COLUMN_ID", resultSet.getInt("COLUMN_ID")) ;
+            h.put("R_TABLE_NAME", resultSet.getString("R_TABLE_NAME"));
+            h.put("R_COLUMN_ID", resultSet.getInt("R_COLUMN_ID"));
             tab.add(h);
         }
         return tab;
     }
-  
-    /*
+    
+    //méthode qui retourne un tableau listant toutes les contraintes PRIMARY KEY, UNIQUE et CHECK des colonnes d'une table 
+    public ArrayList<HashMap> getConstraints(String table) throws SQLException {
+        constraintsList.setString(1, table);
+        resultSet = constraintsList.executeQuery();
+        ArrayList<HashMap> tab = new ArrayList<>();
+        while (resultSet.next()) {
+            HashMap<String, Object> h = new HashMap<>();
+            h.put("COLUMN_ID", resultSet.getInt("COLUMN_ID")) ;
+            h.put("CONSTRAINT_TYPE", resultSet.getString("CONSTRAINT_TYPE").charAt(0));
+            h.put("SEARCH_CONDITION", resultSet.getString("SEARCH_CONDITION"));
+            tab.add(h);
+        }
+        return tab;
+    }
+    
+    public void query (String requete) throws SQLException {
+        statement = connect.createStatement();
+        statement.execute(requete);
+    }
+    
+    public void close() {
+        try {
+            if (statement != null) {
+                statement.close();
+            }
+            resultSet.close();
+            findColumnByID.close();
+            foreignKeysList.close();
+            constraintsList.close();
+            connect.close();
+        } 
+        catch (SQLException e) {
+            
+        }
+    }
+    
+    //METHODE INUTILISEE POUR LINSTANT
+    //public abstract ResultSet getResultSetFromTable(String table) throws Exception;
+    
+     /*
     METHODE SELECT PAR NOM DE TABLE JE LA LAISSE ON VA SUREMENT SEN SERVIR PLUS TARD
     
     public String writeSelectToString(String nomTable) throws SQLException, Exception {
@@ -137,33 +194,4 @@ public abstract class Connexion {
         return text;
     }
     */
-
-    //methode qui retourne la liste des tables
-    public ArrayList<Table> getTables() throws SQLException {
-        ArrayList<Table> tables = new ArrayList<>();
-        dbMetadata = connect.getMetaData();
-        ResultSet rsTables = dbMetadata.getTables(connect.getCatalog(), connect.getSchema(), "%", new String[]{"TABLE"});
-        while (rsTables.next()) {
-            tables.add(new Table(rsTables.getString("TABLE_NAME")));
-        }
-        return tables;
-    }
-    
-    public void close() {
-        try {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-
-            if (statement != null) {
-                statement.close();
-            }
-
-            if (connect != null) {
-                connect.close();
-            }
-        } catch (SQLException e) {
-            
-        }
-    }
 }

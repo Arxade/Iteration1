@@ -1,60 +1,48 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package iteration1.forms;
 
-import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Font;
 import javax.swing.JPanel;
 
-/**
- *
- * @author Kazed
- */
+// @author Kazed
 public class MainFrame extends javax.swing.JFrame {
-    private final JPanel cards;
-    private final CardLayout cl;
+    private final Font font = new Font("Arial", 0, 12);
     private JPanel currentCard;
-    /**
-     * Creates new form FrameMain
-     * @param panel
-     */
-    public MainFrame(JPanel panel) {
+
+    public MainFrame() {
         initComponents();
-        this.cards = panel;
-        cl = (CardLayout)cards.getLayout();
     }
-    
-    public JPanel getCards() {
-        return cards;
-    }
-    
+
     public JPanel getCurrentCard() {
         return currentCard;
     }
-    
+
     public void setCurrentCard() {
         JPanel card = null;
-        for (Component comp : cards.getComponents()) {
+        for (Component comp : getContentPane().getComponents()) {
              if (comp.isVisible() == true) {
                 card = (JPanel)comp;
             }
         }
         currentCard = card;
-        getContentPane().setPreferredSize(currentCard.getPreferredSize());
-        if(currentCard.getName().equals("Connection")) {
-            setResizable(false);
+        String title = null;
+        switch(currentCard.getName()) {
+            case "Connection":
+                title = "Connexion";
+                setResizable(false);
+                break;
+            case "Visualization":
+                title = "Visualization";
+                setResizable(true);
+                break;
+            default:
+                break;
         }
-        else setResizable(true);
+        setTitle(title);
+        getContentPane().setPreferredSize(currentCard.getPreferredSize());
         pack();
     }
-    
-    public CardLayout getCardLayout() {
-        return cl;
-    }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,6 +66,7 @@ public class MainFrame extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

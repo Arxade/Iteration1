@@ -9,11 +9,14 @@ import iteration1.classesConnexion.Connexion;
 import iteration1.classesConnexion.ConnexionMySQL;
 import iteration1.classesConnexion.ConnexionOracle;
 import iteration1.gestFichiers.ConnectionDataJSON;
+import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
@@ -34,18 +37,18 @@ public class ConnectionPanel extends javax.swing.JPanel {
         json = new ConnectionDataJSON();
         if(json.getSGBD() != null) cbxSGBD.setSelectedItem(json.getSGBD());
     }
-    
+
     public boolean isURLSet() {
         return !(json.getParams().isEmpty());
     }
-    
+
     public JDialog createParamsDialog() {
         final JDialog dialog = new JDialog();
         dialog.setTitle("Paramètres de l'URL");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         ConnectionParamsPanel content = new ConnectionParamsPanel(json.getParams());
-        
+
         //Sauvegarde les paramètres dans un fichier JSON et ferme le JDialog
         content.getButton().addActionListener((ActionEvent e) -> {
             json.setParam("Host", content.getInput("Host").getText());
@@ -77,7 +80,6 @@ public class ConnectionPanel extends javax.swing.JPanel {
         txtUser = new javax.swing.JTextField();
         txtPassword = new javax.swing.JPasswordField();
         btnConnectionParams = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
 
         setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         setMaximumSize(new java.awt.Dimension(322, 252));
@@ -135,9 +137,6 @@ public class ConnectionPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel1.setText("Connexion");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -165,18 +164,14 @@ public class ConnectionPanel extends javax.swing.JPanel {
                                     .addComponent(txtUser, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(btnConnectionParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(74, 74, 74)
-                        .addComponent(jLabel1)))
+                        .addComponent(btnConnectionParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(48, 48, 48))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1)
-                    .addComponent(btnConnectionParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnConnectionParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSGBD)
@@ -201,25 +196,33 @@ public class ConnectionPanel extends javax.swing.JPanel {
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         String sgbd = cbxSGBD.getSelectedItem().toString();
         json.setParam("SGBD", sgbd);
-        Connexion connexion;
+        Connexion c;
         //Connexion à la BDD en fonction du SGBD choisi
         switch(sgbd) {
             case "MySQL" :
-                connexion = new ConnexionMySQL(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
+                c = new ConnexionMySQL(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
                 break;
             default :
-                connexion = new ConnexionOracle(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
+                c = new ConnexionOracle(json.getParams().get("Host"), Integer.parseInt(json.getParams().get("Port")), json.getParams().get("Database"));
         }
-        
+
         //Si la connexion est effectuée, sauvegarde le SGBD dans le JSON
         //et switche sur le JPanel VisualizationPanel
-        if(connexion.connexion(connexion.getURL(), txtUser.getText(), String.valueOf(txtPassword.getPassword()))) {
-            json.save();
-            MainFrame mFrame = (MainFrame)SwingUtilities.getRoot(this);
-            mFrame.getCardLayout().next(mFrame.getCards());
-            mFrame.setCurrentCard();
-            VisualizationPanel vp = (VisualizationPanel)mFrame.getCurrentCard();
-            vp.setConnection(connexion);
+        if(c.connexion(c.getURL(), txtUser.getText(), String.valueOf(txtPassword.getPassword()))) {
+            try {
+                c.prepareStatements();
+                json.save();
+                MainFrame f = (MainFrame)SwingUtilities.getRoot(this);
+                JPanel panel = (JPanel)f.getContentPane();
+                CardLayout layout = (CardLayout)panel.getLayout();
+                layout.next(panel);
+                f.setCurrentCard();
+                VisualizationPanel vp = (VisualizationPanel)f.getCurrentCard();
+                vp.connect(c);
+            }
+            catch(SQLException e) {
+
+            }
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 
@@ -232,7 +235,6 @@ public class ConnectionPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnConnectionParams;
     private javax.swing.JComboBox<String> cbxSGBD;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblSGBD;
     private javax.swing.JLabel lblUser;

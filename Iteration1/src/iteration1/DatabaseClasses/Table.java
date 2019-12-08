@@ -7,14 +7,13 @@ package iteration1.DatabaseClasses;
 
 import java.util.ArrayList;
 
-
 /**
  *
  * @author Kazed
  */
 public class Table {
     private final String name;
-    private ArrayList<Attribute> attributes;
+    private ArrayList<Attribute> attributes = new ArrayList<>();
     
     public Table(String name) {
         this.name = name;
@@ -24,7 +23,7 @@ public class Table {
         return name;
     }
     
-    public ArrayList<Attribute> getAttributes() {
+    public ArrayList<Attribute> attributes() {
         return attributes;
     }
 }

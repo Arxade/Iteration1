@@ -7,10 +7,16 @@ package iteration1.forms;
 
 import iteration1.DatabaseClasses.Table;
 import iteration1.classesConnexion.Connexion;
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.DefaultListModel;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -18,45 +24,39 @@ import javax.swing.table.DefaultTableModel;
  * @author Kazed
  */
 public class VisualizationPanel extends javax.swing.JPanel {
-    private Connexion connexion;
-    private ArrayList<Table> tables;
+    private Connexion c;
+    private Table[] recentTables = new Table[10];
+
     /**
      * Creates new form VizualisationPanel
      */
     public VisualizationPanel() {
         initComponents();
-        
+
         //empecher selection élément du tableau
         tblAttributes.setRowSelectionAllowed(false);
         tblAttributes.setColumnSelectionAllowed(false);
     }
-    
-    public void setConnection(Connexion connexion) {
-        this.connexion = connexion;
+
+    public void connect(Connexion c) {
+        this.c = c;
         try {
-            tables = connexion.getTables();
+            c.setTables();
+            tablesList();
         }
         catch(SQLException e) {
-            javax.swing.JOptionPane.showMessageDialog(null, e);
+
         }
-        getTablesList();
     }
-    
-    public void getTablesList() {
-        
+
+    public void tablesList() {
         //Remplissage de la liste des tables
-        try {
-            String[] tablesList = new String[tables.size()];
-            int i = 0;
-            for(Table table : tables) {
-                tablesList[i] = table.getName();
-                i++;
-            }
-            lstTables.setListData(tablesList);
-        } 
-        catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null, e);
-        }
+        ArrayList<String> tl = new ArrayList<>();
+        c.getTables().keySet().forEach((t) -> {
+            tl.add(t);
+        });
+        Collections.sort(tl);
+        lstTables.setListData(tl.toArray(new String[tl.size()]));
     }
 
     /**
@@ -75,6 +75,7 @@ public class VisualizationPanel extends javax.swing.JPanel {
         btnDisonnect = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        btnNewTable = new javax.swing.JButton();
 
         slpTables.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         slpTables.setMaximumSize(new java.awt.Dimension(192, 384));
@@ -103,14 +104,14 @@ public class VisualizationPanel extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Nom", "Type", "Longueur", "Clé primaire", "Clé étrangère", "Not null", "Valeur par défaut", "Unique"
+                "Nom", "Type", "Longueur", "Clé primaire", "Not null", "Unique", "Clé étrangère"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -143,6 +144,13 @@ public class VisualizationPanel extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel2.setText("Informations de la table : ");
 
+        btnNewTable.setText("Nouvelle table");
+        btnNewTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewTableActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -155,8 +163,10 @@ public class VisualizationPanel extends javax.swing.JPanel {
                         .addComponent(slpTables, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(312, 312, 312)
-                                .addComponent(btnDisonnect, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(195, 195, 195)
+                                .addComponent(btnDisonnect, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(123, 123, 123)
+                                .addComponent(btnNewTable))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(16, 16, 16)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -177,45 +187,67 @@ public class VisualizationPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(slpAttributes, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(32, 32, 32)
-                        .addComponent(btnDisonnect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnDisonnect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnNewTable))))
                 .addGap(32, 32, 32))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnDisonnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisonnectActionPerformed
-        connexion.close();
-        
+        c.close();
+
         //Vide la liste
         DefaultTableModel tableModel = (DefaultTableModel)tblAttributes.getModel();
         tableModel.setRowCount(0);
-        
-        //Switche l'affichage sur le JPanel ConnectionPanel 
-        MainFrame mFrame = (MainFrame)SwingUtilities.getRoot(this);
-        mFrame.getCardLayout().first(mFrame.getCards());
-        mFrame.setCurrentCard();
+
+        //Switche l'affichage sur le JPanel ConnectionPanel
+        MainFrame f = (MainFrame)SwingUtilities.getRoot(this);
+        JPanel panel = (JPanel)f.getContentPane();
+        CardLayout layout = (CardLayout)panel.getLayout();
+        layout.next(panel);
+        f.setCurrentCard();
     }//GEN-LAST:event_btnDisonnectActionPerformed
 
     private void lstTablesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstTablesMouseClicked
-
-        //on recup le modele du Jtable
+        String selected = lstTables.getSelectedValue();
         DefaultTableModel tableModel = (DefaultTableModel)tblAttributes.getModel();
         tableModel.setRowCount(0);
 
-        //on rempli le Jtable avec les infos de la table grace a getColonnes(nomTable);
+        //Remplissage de la JTable avec les variables de la classe Attribut;
         try {
-            ArrayList<Object[]> tab = connexion.getColonnes(lstTables.getSelectedValue());
-            for(int i = 0; i < tab.size(); i++){
-                tableModel.addRow(tab.get(i));
-            }
-        } catch (SQLException e) {
+            c.tableColumns(selected);
+            c.getTables().get(selected).attributes().forEach((a) -> {
+                tableModel.addRow(a.getAttribute());
+            });
+        }
+        catch (SQLException e) {
             javax.swing.JOptionPane.showMessageDialog(null, e);
         }
-
     }//GEN-LAST:event_lstTablesMouseClicked
+
+    private void btnNewTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewTableActionPerformed
+        final JDialog dialog = new JDialog();
+        dialog.setTitle("Nouvelle table");
+        dialog.setModal(true);
+        dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        TableCreationPanel content = new TableCreationPanel(c);
+        content.getButton().addActionListener((ActionEvent e) -> {
+            String name = content.getTableName().getText();
+            c.getTables().put(name, new Table(name));
+            tablesList();
+            dialog.dispose();
+        });
+        dialog.setContentPane(content);
+        dialog.setResizable(false);
+        dialog.pack();
+        dialog.setVisible(true);
+    }//GEN-LAST:event_btnNewTableActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDisonnect;
+    private javax.swing.JButton btnNewTable;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> lstTables;
